@@ -5,8 +5,8 @@ import cv2
 import os
 from flask_cors import CORS
 
-
 app = Flask(__name__)
+application = app
 CORS(app)
 # Định nghĩa class
 class_name = ['ok', 'xxx']
@@ -14,12 +14,17 @@ class_name = ['ok', 'xxx']
 # Load model đã train
 my_model = load_model("cool_model")
 
-
 newTrain_data_folder = 'data/New_Train/'
 newTrain_folder_list = ['OK', 'XXX']
 # Tạo các thư mục nếu chưa tồn tại
 for folder in newTrain_folder_list:
     os.makedirs(os.path.join(newTrain_data_folder, folder), exist_ok=True)
+
+
+@app.route('/', methods=['GET'])
+def index():
+    return {'message': 'Welcome to API of AI Cool Detect Model!!'}
+
 
 @app.route('/upload', methods=['POST'])
 def upload_image():
@@ -87,7 +92,8 @@ def predict():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-#Tim transparents
+
+# Tim transparents
 
 def calculate_angle_with_vertical_edge(left_vertical_edge_point1, left_vertical_edge_point2):
     # Tính vector từ điểm đầu đến điểm cuối của cạnh dọc
@@ -101,6 +107,8 @@ def calculate_angle_with_vertical_edge(left_vertical_edge_point1, left_vertical_
     angle_degrees = angle_degrees if angle_degrees >= 0 else 180 + angle_degrees
 
     return angle_degrees
+
+
 def detect_transparent_regions(image_data):
     # Đọc ảnh từ dữ liệu nhận được
     nparr = np.frombuffer(image_data, np.uint8)
@@ -203,12 +211,12 @@ def detect_transparent_regions(image_data):
                         "type": "circle",
                         "x": x_center,
                         "y": y_center,
-                        "width": r + r ,
-                        "height": r + r ,
+                        "width": r + r,
+                        "height": r + r,
                         "rotation": 0,
                         "left_vertical_edge": {
-                             "start_point": {
-                                "x": x_center - r ,
+                            "start_point": {
+                                "x": x_center - r,
                                 "y": y_center - r
                             },
                             "end_point": {
@@ -250,6 +258,7 @@ def detect_transparent_regions(image_data):
     else:
         return None, 0, heightBG, widthBG
 
+
 @app.route('/detect_transparent_regions', methods=['POST'])
 def process_image():
     # Nhận dữ liệu ảnh từ yêu cầu POST
@@ -257,7 +266,8 @@ def process_image():
     image_data = image_file.read()
 
     # Phát hiện các vùng trong suốt và lấy thông tin về chúng
-    transparent_regions_info, total_transparent_regions, image_height, image_width = detect_transparent_regions(image_data)
+    transparent_regions_info, total_transparent_regions, image_height, image_width = detect_transparent_regions(
+        image_data)
     if total_transparent_regions == 0:
         response = {
             "BG_width": image_width,
@@ -282,4 +292,4 @@ def process_image():
 if __name__ == '__main__':
     if not os.path.exists('temp'):
         os.makedirs('temp')
-    app.run()
+    app.run(debug=True)
