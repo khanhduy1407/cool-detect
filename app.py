@@ -6,8 +6,9 @@ import os
 from flask_cors import CORS
 
 app = Flask(__name__)
-application = app
 CORS(app)
+application = app
+
 # Định nghĩa class
 class_name = ['ok', 'xxx']
 
